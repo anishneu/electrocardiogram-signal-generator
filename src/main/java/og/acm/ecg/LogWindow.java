@@ -1,0 +1,123 @@
+package og.acm.ecg;
+
+
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.logging.Logger;
+
+public class LogWindow extends JFrame {
+
+    private final DateFormat shortTime = DateFormat.getTimeInstance();
+    private final DateFormat longDateTime = DateFormat.getDateTimeInstance();
+    private javax.swing.JTextArea txtStatus;
+    private static final Logger LOGGER = Logger.getLogger(LogWindow.class.getSimpleName());
+
+    /**
+     * Creates new form ecgLogWindow
+     */
+    public LogWindow() {
+        initComponents();
+        startLog();
+        this.setSize(740, 460);
+    }
+
+    void startLog() {
+        txtStatus.append("ECG Application Started on " + getCurDateTime() + "\n");
+
+    }
+
+    public void println(String value) {
+        LOGGER.info(value);
+        txtStatus.append(getCurShortTime() + value + "\n");
+
+    }
+
+    void clearLog() {
+        txtStatus.setText(null);
+    }
+
+    private String getCurShortTime() {
+        return "[" + shortTime.format(new Date()) + "]: ";
+    }
+
+    private String getCurDateTime() {
+        return "[" + longDateTime.format(new Date()) + "]: ";
+    }
+
+    
+    private void initComponents() {
+        JPanel jPanel1 = new JPanel();
+        JScrollPane statusScrollPane = new JScrollPane();
+        txtStatus = new JTextArea();
+        JButton clearButton = new JButton();
+        JButton closeButton = new JButton();
+        JButton saveButton = new JButton();
+
+        setLayout(new BorderLayout());
+        jPanel1.setLayout(new BorderLayout());
+
+        statusScrollPane.setBorder(new TitledBorder(new BevelBorder(BevelBorder.RAISED), "Status and Messages:", TitledBorder.LEFT, TitledBorder.ABOVE_TOP));
+        statusScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        txtStatus.setEditable(false);
+        statusScrollPane.setViewportView(txtStatus);
+
+        jPanel1.add(statusScrollPane);
+        statusScrollPane.setBounds(0, 0, 730, 390);
+
+        clearButton.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 11));
+        clearButton.setText("Clear");
+        clearButton.addActionListener(LogWindow.this::clearButtonActionPerformed);
+
+        jPanel1.add(clearButton);
+        clearButton.setBounds(540, 400, 80, 25);
+
+        closeButton.setText("Close");
+        closeButton.addActionListener(LogWindow.this::closeButtonActionPerformed);
+
+        jPanel1.add(closeButton);
+        closeButton.setBounds(640, 400, 80, 25);
+
+        saveButton.setFont(new java.awt.Font("MS Sans Serif", 0, 10));
+        saveButton.setText("Save log");
+        saveButton.addActionListener(LogWindow.this::saveButtonActionPerformed);
+
+        jPanel1.add(saveButton);
+        saveButton.setBounds(420, 400, 100, 25);
+
+        add(jPanel1, java.awt.BorderLayout.CENTER);
+    }
+
+    private void saveButtonActionPerformed(ActionEvent evt) {
+        JFileChooser c = new JFileChooser();
+        /* Open "Save" dialog: */
+        int rVal = c.showSaveDialog(this);
+        if (rVal == JFileChooser.APPROVE_OPTION) {
+            File file = c.getSelectedFile();
+            try {
+                FileWriter fw = new FileWriter(file);
+                fw.write("ECG Log:\r\n");
+                txtStatus.write(fw);
+                fw.close();
+                JOptionPane.showMessageDialog(this, "Log was saved successfully!");
+            } catch (IOException ioe) {
+                throw new RuntimeException(ioe);
+            }
+        }
+    }
+
+    private void clearButtonActionPerformed(ActionEvent evt) {
+        clearLog();
+    }
+
+    private void closeButtonActionPerformed(ActionEvent evt) {
+        this.setVisible(false);
+    }
+}
