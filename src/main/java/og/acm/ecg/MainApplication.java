@@ -1,0 +1,86 @@
+package og.acm.ecg;
+
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class MainApplication extends javax.swing.JFrame {
+    /* Main GUI-Window Objects*/
+    private GraphPanel plotWin;
+    private ParameterWindow paramWin;
+    private LogWindow logWin;
+
+    /**
+     * Creates new form ecgApplication
+     */
+    public MainApplication() {
+        initComponents();
+        initClasses();
+        initWindow();
+    }
+
+    /**
+     * Main entry for the application
+     *
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        MainApplication app = new MainApplication();
+        app.setVisible(true);
+        app.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    }
+
+    /*
+     * Init Child Classes
+     */
+    private void initClasses() {
+        /* Main Calculation Objects */
+        final EcgParameters paramOb = new EcgParameters();
+
+        this.logWin = new LogWindow();
+        this.paramWin = new ParameterWindow(paramOb, logWin);
+        this.plotWin = new GraphPanel(paramOb, logWin);
+    }
+
+    private void initWindow() {
+        this.setSize(880, 700);
+        this.setResizable(false);
+        this.setLayout(new BorderLayout());
+
+        JPanel toolPanel = new JPanel();
+        toolPanel.setLayout(new FlowLayout());
+
+        JButton settingBtn = new JButton("Parameters");
+        settingBtn.addActionListener((ActionEvent e) -> paramWin.setVisible(true));
+        toolPanel.add(settingBtn);
+
+        JButton logBtn = new JButton("Show log");
+        logBtn.addActionListener((ActionEvent e) -> logWin.setVisible(true));
+        toolPanel.add(logBtn);
+
+        JButton aboutBtn = new JButton("About");
+        aboutBtn.addActionListener((ActionEvent e) -> {
+            AboutWindow aboutDialog = new AboutWindow(this, true);
+            aboutDialog.setVisible(true);
+        });
+        toolPanel.add(aboutBtn);
+
+        add(toolPanel, BorderLayout.SOUTH);
+        add(plotWin, BorderLayout.CENTER);
+
+
+    }
+
+    
+    private void initComponents() {
+        setTitle("Java ECG Generator");
+        pack();
+    }
+}
